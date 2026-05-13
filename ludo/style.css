@@ -24,14 +24,7 @@ body,
   width: 500px;
   height: 500px;
   border: 1px solid red;
-  display: flex;
-  flex-direction: column;
-}
-
-.board-top,
-.board-middle,
-.board-bottom {
-  display: flex;
+  position: relative;
 }
 
 .base {
@@ -49,6 +42,7 @@ body,
 .board-home {
   width: 100px;
   height: 100px;
+  border: 1px solid cyan;
 }
 
 .gallery {
@@ -67,4 +61,60 @@ body,
 .gallery.vertical .path {
   display: flex;
   flex-direction: column;
+}
+
+/* absolute portioning of board components */
+
+.base-1 {
+  top: 0;
+  left: 0;
+  position: absolute;
+}
+
+.base-2 {
+  top: 0;
+  left: 300px;
+  position: absolute;
+}
+
+.base-3 {
+  top: 300px;
+  left: 0;
+  position: absolute;
+}
+
+.base-4 {
+  top: 300px;
+  left: 300px;
+  position: absolute;
+}
+
+.board-home {
+  top: 200px;
+  left: 200px;
+  position: absolute;
+}
+
+.gallery-1 {
+  top: 0px;
+  left: 200px;
+  position: absolute;
+}
+
+.gallery-2 {
+  top: 200px;
+  left: 300px;
+  position: absolute;
+}
+
+.gallery-3 {
+  top: 300px;
+  left: 200px;
+  position: absolute;
+}
+
+.gallery-4 {
+  top: 200px;
+  left: 0px;
+  position: absolute;
 }
