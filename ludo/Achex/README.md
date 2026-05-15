@@ -8,8 +8,8 @@ A robust, Promise-based ES module wrapper for the Achex Cloud WebSocket infrastr
 
 Because it is a legacy infrastructure, it comes with a few quirks that this wrapper abstracts away:
 
-- **The Password Myth:** The authentication step requires a `passwd` field, but it is completely non-functional. Achex allows duplicate usernames and accepts any password. Our class automatically handles this handshake behind the scenes.
-- **Public and Unencrypted:** Any data sent over Achex is readable by anyone listening on the server. **This is why Achex is intended to be used in tandem with `SecureGroup.js**`, which encrypts your payloads using AES-GCM _before_ they are sent over the Achex network.
+- **The Password Myth:** The authentication step requires a `passwd` field, but it is completely useless. It is likely an abandoned feature from when they considered building an auth system. Our class automatically handles this handshake behind the scenes.
+- **Public and Unencrypted:** Any data sent over Achex is readable by anyone listening on the server. For this reason, sensitive payloads should be cryptographically encrypted by your application _before_ they are sent over the Achex network.
 - **Idle Kicks:** Achex aggressively disconnects idle sessions. This wrapper automatically runs a background heartbeat (ping) every 25 seconds to keep your connection alive.
 - **Network Instability:** Connections over public websockets can drop unexpectedly. This wrapper includes a customizable auto-reconnect feature to seamlessly restore the session without requiring a page reload.
 
@@ -17,7 +17,7 @@ Because it is a legacy infrastructure, it comes with a few quirks that this wrap
 
 Achex routes messages using three primary identifiers:
 
-1. **Usernames:** A string alias you choose (or auto-generate) when connecting. _Note: Usernames are not strictly unique on the server._
+1. **Usernames:** A string alias you choose (or auto-generate) when connecting. Multiple sessions can share the same username so that they can all receive messages when sent to that username.
 2. **Sessions (SID):** A unique integer assigned to you by the server upon successful connection. This is your true, unique network identity.
 3. **Hubs:** Essentially "Chat Rooms." Multiple users can join a Hub. Any message sent to a Hub is automatically broadcasted to every Session ID currently inside that Hub.
 
@@ -53,11 +53,24 @@ The `Achex` class extends `EventEmitter`, inheriting methods like `.on()`, `.onc
 
 You can listen to these events using `.on('eventName', callback)`.
 
-- **Connection Events:** `'connected'`, `'disconnected'`, `'reconnecting'`, `'error'`
-- **Hub Events:** `'hub:joined'`, `'hub:left'`, `'hub:user_left'`
-- **Message Events:** - `'message:hub'` - Fired when data arrives via a Hub broadcast.
-- `'message:user'` - Fired when data is sent to your Username.
-- `'message:session'` - Fired when data is sent directly to your SID.
+**Connection Events:**
+
+- `'connected'` - Fired when the WebSocket successfully authenticates and receives a Session ID.
+- `'disconnected'` - Fired when the WebSocket connection drops or is gracefully closed.
+- `'reconnecting'` - Fired when the auto-reconnect sequence initiates after an unexpected drop.
+- `'error'` - Fired when a WebSocket or network error occurs.
+
+**Hub Events:**
+
+- `'hub:joined'` - Fired when your session successfully joins a Hub.
+- `'hub:left'` - Fired when your session successfully leaves a Hub.
+- `'hub:user_left'` - Fired when another user disconnects or leaves a Hub you are currently in.
+
+**Message Events:**
+
+- `'message:hub'` - Fired when data arrives via a Hub broadcast.
+- `'message:user'` - Fired when data is sent to your shared Username.
+- `'message:session'` - Fired when data is sent directly to your unique SID.
 
 ## Usage Example
 
@@ -89,7 +102,7 @@ async function startNetwork() {
     // 4. Join a Game Room and Broadcast
     network.joinHub('Ludo-Room-XYZ');
 
-    // Remember to encrypt your payload with SecureGroup.js first!
+    // Make sure to encrypt your sensitive payloads first!
     network.sendToHub('Ludo-Room-XYZ', 'Hello everyone in the room!');
   } catch (error) {
     console.error('Network connection failed:', error);
