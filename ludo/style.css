@@ -65,26 +65,75 @@ body,
   flex-direction: column;
 }
 
-/* absolute portioning of board components */
+.pawn-stay {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 5px solid gray;
+  background-color: white;
+  outline: 10px solid white;
+}
+
+.pawn {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+}
+
+.pawn:nth-last-child(1),
+.pawn:nth-last-child(2),
+.pawn:nth-last-child(3),
+.pawn:nth-last-child(4) {
+  background-color: #d5b900;
+}
+
+.pawn:nth-last-child(5),
+.pawn:nth-last-child(6),
+.pawn:nth-last-child(7),
+.pawn:nth-last-child(8) {
+  background-color: #4bd3f1;
+}
+
+.pawn:nth-last-child(9),
+.pawn:nth-last-child(10),
+.pawn:nth-last-child(11),
+.pawn:nth-last-child(12) {
+  background-color: #e20456;
+}
+
+.pawn:nth-last-child(13),
+.pawn:nth-last-child(14),
+.pawn:nth-last-child(15),
+.pawn:nth-last-child(16) {
+  background-color: #10a41a;
+}
+
+/* absolute portioning + coloring of board components */
 
 .base-1 {
   top: 0;
   left: 0;
+  background-color: #f7d804;
 }
 
 .base-2 {
   top: 0;
   right: 0;
+  background-color: #9ae2f2;
 }
 
 .base-3 {
-  left: 0;
+  right: 0;
   bottom: 0;
+  background-color: #f40a5f;
 }
 
 .base-4 {
-  right: 0;
+  left: 0;
   bottom: 0;
+  background-color: #25b72e;
 }
 
 .board-home {
@@ -110,4 +159,24 @@ body,
 .gallery-4 {
   top: 240px;
   left: 0px;
+}
+
+.pawn-stay:nth-child(1) {
+  top: 40px;
+  left: 40px;
+}
+
+.pawn-stay:nth-child(2) {
+  top: 40px;
+  right: 40px;
+}
+
+.pawn-stay:nth-child(3) {
+  bottom: 40px;
+  left: 40px;
+}
+
+.pawn-stay:nth-child(4) {
+  bottom: 40px;
+  right: 40px;
 }

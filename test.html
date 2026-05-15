@@ -5,29 +5,75 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
     <style>
-      .box {
-        height: 100px;
-        background-color: aqua;
-        position: relative;
+      .gallery {
+        display: flex;
+        flex-direction: column;
       }
 
-      .enjoy {
-        bottom: 0;
-        left: 50px;
-        position: absolute;
-        background-color: red;
-        /* z-index: -1; */
+      .gallery.vertical {
+        flex-direction: row;
+      }
+
+      .path {
+        display: flex;
+      }
+
+      .gallery.vertical .path {
+        flex-direction: column;
+      }
+
+      .cell {
+        width: 40px;
+        height: 40px;
+        border: 1px solid red;
       }
     </style>
   </head>
   <body>
-    <div>Hello</div>
-    <div>Bye</div>
-    <div class="box">
-      <div>Welcome back</div>
-      <div class="enjoy">Let's enjoy</div>
-      <div>So much fun</div>
+    <div class="gallery">
+      <div class="path">
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+      </div>
+
+      <div class="path">
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+      </div>
+
+      <div class="path">
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+      </div>
     </div>
-    <div>It's summers</div>
+
+    <br />
+
+    <div class="gallery vertical">
+      <div class="path">
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+      </div>
+      <div class="path">
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+      </div>
+      <div class="path">
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+      </div>
+    </div>
   </body>
 </html>

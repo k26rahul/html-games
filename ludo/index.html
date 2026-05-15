@@ -11,10 +11,18 @@
   <body>
     <main id="app">
       <div id="board">
-        <div class="base base-1"></div>
-        <div class="base base-2"></div>
-        <div class="base base-3"></div>
-        <div class="base base-4"></div>
+        <div class="base base-1">
+          <div class="pawn-stay" v-for="n in 4" :key="n"></div>
+        </div>
+        <div class="base base-2">
+          <div class="pawn-stay" v-for="n in 4" :key="n"></div>
+        </div>
+        <div class="base base-3">
+          <div class="pawn-stay" v-for="n in 4" :key="n"></div>
+        </div>
+        <div class="base base-4">
+          <div class="pawn-stay" v-for="n in 4" :key="n"></div>
+        </div>
 
         <div class="board-home"></div>
 
@@ -62,6 +70,8 @@
             <div class="cell" v-for="n in 6" :key="n"></div>
           </div>
         </div>
+
+        <div class="pawn" v-for="n in 16" :key="n"></div>
       </div>
     </main>
   </body>
