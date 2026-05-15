@@ -59,6 +59,11 @@ async function runAchexTests() {
       client.username.startsWith('user_'),
       'TEST 1 Failed: Auto-username failed.',
     );
+    assert.strictEqual(
+      client.autoReconnect,
+      true,
+      'TEST 1 Failed: Default autoReconnect incorrect.',
+    );
     console.log('✅ TEST 1 Passed: Initialization & Defaults');
 
     // TEST 2: Successful Connection & Authentication
@@ -95,7 +100,7 @@ async function runAchexTests() {
     authClient.disconnect(); // Cleanup
 
     // TEST 3: Connection Rejection (Network Error)
-    const failClient = new Achex();
+    const failClient = new Achex({ autoReconnect: false });
     const failPromise = failClient.connect();
 
     await new Promise(r => setTimeout(r, 20));
@@ -184,19 +189,70 @@ async function runAchexTests() {
     );
     console.log('✅ TEST 5 Passed: Outbound API generates correct Achex commands');
 
+    sendClient.disconnect(); // Cleanup
+
     // TEST 6: Graceful Disconnect
-    sendClient.disconnect();
+    const disconnectClient = new Achex();
+    const disconnectPromise = disconnectClient.connect();
+
+    // Simulate connection delay and send the Auth OK
+    await new Promise(r => setTimeout(r, 20));
+    disconnectClient.ws.simulateServerMessage({ auth: 'OK', SID: 555 });
+    await disconnectPromise; // Now it resolves!
+
+    disconnectClient.disconnect();
+
     assert.strictEqual(
-      sendClient.ws.readyState,
+      disconnectClient.ws.readyState,
       MockWebSocket.CLOSED,
       'TEST 6a Failed: Socket did not close.',
     );
     assert.strictEqual(
-      sendClient._pingInterval,
+      disconnectClient._pingInterval,
       null,
       'TEST 6b Failed: Heartbeat was not stopped.',
     );
     console.log('✅ TEST 6 Passed: Disconnection cleans up memory and stops heartbeat');
+
+    // TEST 7: Auto-Reconnect Feature
+    const reconnectClient = new Achex({ reconnectInterval: 20 });
+    const reconnectPromise = reconnectClient.connect();
+
+    await new Promise(r => setTimeout(r, 20));
+    reconnectClient.ws.simulateServerMessage({ auth: 'OK', SID: 777 });
+    await reconnectPromise;
+
+    let reconnectingEmitted = false;
+    reconnectClient.on('reconnecting', () => {
+      reconnectingEmitted = true;
+    });
+
+    // Simulate accidental drop (not calling .disconnect())
+    const oldWs = reconnectClient.ws;
+    oldWs.close(); // Mock close triggers onclose
+
+    // Wait for reconnect interval (20ms) + mock connection time (10ms) + buffer
+    await new Promise(r => setTimeout(r, 60));
+
+    assert.ok(reconnectingEmitted, 'TEST 7a Failed: reconnecting event was not emitted.');
+    assert.notStrictEqual(
+      reconnectClient.ws,
+      oldWs,
+      'TEST 7b Failed: New WebSocket instance was not created.',
+    );
+
+    // Authenticate the new socket
+    reconnectClient.ws.simulateServerMessage({ auth: 'OK', SID: 888 });
+    await new Promise(r => setTimeout(r, 10));
+
+    assert.strictEqual(
+      reconnectClient.sessionID,
+      888,
+      'TEST 7c Failed: Reconnected session did not update SID.',
+    );
+    console.log('✅ TEST 7 Passed: Auto-reconnect restores connection automatically');
+
+    reconnectClient.disconnect();
 
     console.log('\n🏁 All Achex Network tests passed successfully!\n');
   } catch (err) {

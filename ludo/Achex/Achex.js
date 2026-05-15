@@ -14,17 +14,26 @@ export default class Achex extends EventEmitter {
     TEST: 'wss://cloud.achex.ca/testinst',
   };
 
-  constructor({ url = Achex.CLOUD_URLS.STOLOTO, username = null } = {}) {
+  constructor({
+    url = Achex.CLOUD_URLS.STOLOTO,
+    username = null,
+    autoReconnect = true,
+    reconnectInterval = 3000,
+  } = {}) {
     super();
     this.url = url;
     // Generate a random 8-character string if no username is provided
     this.username = username || `user_${Math.random().toString(36).substring(2, 10)}`;
+    this.autoReconnect = autoReconnect;
+    this.reconnectInterval = reconnectInterval;
 
     this.ws = null;
     this.sessionID = null;
     this.currentHub = null;
 
     this._pingInterval = null;
+    this._reconnectTimer = null;
+    this._intentionalDisconnect = false;
 
     // Promise resolvers for the connection phase
     this._authResolve = null;
@@ -36,6 +45,21 @@ export default class Achex extends EventEmitter {
    * @returns {Promise<number>} Resolves with the Session ID (SID) once authenticated.
    */
   async connect() {
+    // Prevent overlapping connection attempts
+    if (
+      this.ws &&
+      (this.ws.readyState === WebSocket.CONNECTING ||
+        this.ws.readyState === WebSocket.OPEN)
+    ) {
+      return Promise.resolve(this.sessionID);
+    }
+
+    this._intentionalDisconnect = false;
+    if (this._reconnectTimer) {
+      clearTimeout(this._reconnectTimer);
+      this._reconnectTimer = null;
+    }
+
     return new Promise((resolve, reject) => {
       this._authResolve = resolve;
       this._authReject = reject;
@@ -74,6 +98,13 @@ export default class Achex extends EventEmitter {
           this._authReject(new Error('WebSocket Closed before authentication'));
           this._clearAuthPromises();
         }
+
+        if (this.autoReconnect && !this._intentionalDisconnect) {
+          this.emit('reconnecting');
+          this._reconnectTimer = setTimeout(() => {
+            this.connect().catch(() => {});
+          }, this.reconnectInterval);
+        }
       };
     });
   }
@@ -82,6 +113,11 @@ export default class Achex extends EventEmitter {
    * Gracefully closes the connection and stops background tasks.
    */
   disconnect() {
+    this._intentionalDisconnect = true;
+    if (this._reconnectTimer) {
+      clearTimeout(this._reconnectTimer);
+      this._reconnectTimer = null;
+    }
     if (this.ws) {
       this.ws.close();
     }
