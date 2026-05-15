@@ -21,33 +21,36 @@ body,
 }
 
 #board {
-  width: 500px;
-  height: 500px;
+  width: 600px;
+  height: 600px;
   border: 1px solid red;
   position: relative;
 }
 
 .base {
-  width: 200px;
-  height: 200px;
+  width: 240px;
+  height: 240px;
+  position: absolute;
   border: 1px solid green;
 }
 
 .cell {
-  width: calc(200px / 6);
-  height: calc(200px / 6);
+  width: 40px;
+  height: 40px;
   border: 1px solid gray;
 }
 
 .board-home {
-  width: 100px;
-  height: 100px;
+  width: 120px;
+  height: 120px;
+  position: absolute;
   border: 1px solid cyan;
 }
 
 .gallery {
   display: flex;
   flex-direction: column;
+  position: absolute;
 }
 
 .gallery.vertical {
@@ -59,7 +62,6 @@ body,
 }
 
 .gallery.vertical .path {
-  display: flex;
   flex-direction: column;
 }
 
@@ -68,53 +70,44 @@ body,
 .base-1 {
   top: 0;
   left: 0;
-  position: absolute;
 }
 
 .base-2 {
   top: 0;
-  left: 300px;
-  position: absolute;
+  right: 0;
 }
 
 .base-3 {
-  top: 300px;
   left: 0;
-  position: absolute;
+  bottom: 0;
 }
 
 .base-4 {
-  top: 300px;
-  left: 300px;
-  position: absolute;
+  right: 0;
+  bottom: 0;
 }
 
 .board-home {
-  top: 200px;
-  left: 200px;
-  position: absolute;
+  top: 240px;
+  left: 240px;
 }
 
 .gallery-1 {
   top: 0px;
-  left: 200px;
-  position: absolute;
+  left: 240px;
 }
 
 .gallery-2 {
-  top: 200px;
-  left: 300px;
-  position: absolute;
+  top: 240px;
+  right: 0;
 }
 
 .gallery-3 {
-  top: 300px;
-  left: 200px;
-  position: absolute;
+  left: 240px;
+  bottom: 0;
 }
 
 .gallery-4 {
-  top: 200px;
+  top: 240px;
   left: 0px;
-  position: absolute;
 }
