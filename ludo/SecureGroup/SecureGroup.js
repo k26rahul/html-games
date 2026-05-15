@@ -40,7 +40,7 @@ export class SecureP2PBase {
   async _generateECDH() {
     this.ecdhKeyPair = await crypto.subtle.generateKey(
       { name: 'ECDH', namedCurve: 'P-256' },
-      true, // extractable (so we can send the public key)
+      true, // extractable (so we can send the public key and save state)
       ['deriveKey'],
     );
   }
@@ -160,7 +160,7 @@ export class SecureHost extends SecureP2PBase {
     // Generate the final Group Secret Key
     this.groupKey = await crypto.subtle.generateKey(
       { name: 'AES-GCM', length: 256 },
-      true, // Extractable, so we can send it to guests
+      true, // Extractable, so we can save state and send to guests
       ['encrypt', 'decrypt'],
     );
 
@@ -187,7 +187,7 @@ export class SecureHost extends SecureP2PBase {
   }
 
   /**
-   * Step 2: Host receives Join Request, verifies code, and returns the Group Key.
+   * Step 2: Host receives Join Request, verifies code and nonce, and returns the Group Key.
    */
   async processJoinRequest(guestPubKeyBase64, encryptedJoinRequest) {
     // 1. Derive the 1-to-1 handshake key
@@ -220,27 +220,64 @@ export class SecureHost extends SecureP2PBase {
     const exportedGroupKey = await crypto.subtle.exportKey('raw', this.groupKey);
     const groupKeyBase64 = SecureP2PBase._toBase64(new Uint8Array(exportedGroupKey));
 
-    // 6. Encrypt the Group Key using the 1-to-1 handshake key
+    // 6. Encrypt the Group Key and mirror the nonce back to the guest
     return await this._encryptPayload(handshakeKey, {
       groupKey: groupKeyBase64,
+      nonce: requestData.nonce,
     });
   }
 
   /**
-   * Step 4: Host receives the Guest's test "hello", replies with "welcome".
+   * Exports the complete Host state as a JSON string for persistence (e.g., localStorage).
    */
-  async processHello(encryptedHello) {
-    const data = await this.decrypt(encryptedHello);
+  async exportState() {
+    const state = {
+      maxMembers: this.#maxMembers,
+      invitationCode: this.#invitationCode,
+      members: Array.from(this.#members),
+      ecdhPublicKey: await crypto.subtle.exportKey('jwk', this.ecdhKeyPair.publicKey),
+      ecdhPrivateKey: await crypto.subtle.exportKey('jwk', this.ecdhKeyPair.privateKey),
+      groupKey: this.groupKey
+        ? await crypto.subtle.exportKey('jwk', this.groupKey)
+        : null,
+    };
+    return JSON.stringify(state);
+  }
 
-    if (data.action !== 'hello' || !data.blob) {
-      throw new Error('Invalid hello intent.');
+  /**
+   * Imports a previously exported JSON state to resume the Host session.
+   */
+  async importState(jsonString) {
+    const state = JSON.parse(jsonString);
+    this.#maxMembers = state.maxMembers;
+    this.#invitationCode = state.invitationCode;
+    this.#members = new Set(state.members);
+
+    const pubKey = await crypto.subtle.importKey(
+      'jwk',
+      state.ecdhPublicKey,
+      { name: 'ECDH', namedCurve: 'P-256' },
+      true,
+      [],
+    );
+    const privKey = await crypto.subtle.importKey(
+      'jwk',
+      state.ecdhPrivateKey,
+      { name: 'ECDH', namedCurve: 'P-256' },
+      true,
+      ['deriveKey'],
+    );
+    this.ecdhKeyPair = { publicKey: pubKey, privateKey: privKey };
+
+    if (state.groupKey) {
+      this.groupKey = await crypto.subtle.importKey(
+        'jwk',
+        state.groupKey,
+        { name: 'AES-GCM', length: 256 },
+        true,
+        ['encrypt', 'decrypt'],
+      );
     }
-
-    // Reply using the group key, sending the exact same blob back
-    return await this.encrypt({
-      action: 'welcome',
-      blob: data.blob,
-    });
   }
 }
 
@@ -251,7 +288,7 @@ export class SecureHost extends SecureP2PBase {
 export class SecureGuest extends SecureP2PBase {
   #hostPubKeyBase64;
   #handshakeKey;
-  #testBlob; // Stores the random blob used during the Hello phase
+  #joinNonce; // Used to prevent replay attacks during the join phase
 
   /**
    * Initializes the Guest: Generates their local ECDH keypair.
@@ -266,15 +303,22 @@ export class SecureGuest extends SecureP2PBase {
   async createJoinRequest(hostPubKeyBase64, inviteCode) {
     this.#hostPubKeyBase64 = hostPubKeyBase64;
 
+    // Generate a secure nonce for replay protection
+    const randomBytes = crypto.getRandomValues(new Uint8Array(8));
+    this.#joinNonce = Array.from(randomBytes)
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
+
     // 1. Derive the 1-to-1 handshake key
     this.#handshakeKey = await this._deriveSharedSecret(
       this.ecdhKeyPair.privateKey,
       hostPubKeyBase64,
     );
 
-    // 2. Encrypt the invitation code with the handshake key
+    // 2. Encrypt the invitation code and nonce with the handshake key
     const encryptedPayload = await this._encryptPayload(this.#handshakeKey, {
       inviteCode: inviteCode,
+      nonce: this.#joinNonce,
     });
 
     // 3. Return the payload AND the guest's public key (so the host can derive the secret)
@@ -285,7 +329,7 @@ export class SecureGuest extends SecureP2PBase {
   }
 
   /**
-   * Step 3a: Guest receives the Host's response and extracts the Group Key.
+   * Step 3: Guest receives the Host's response, verifies the nonce, and extracts the Group Key.
    */
   async processJoinResponse(encryptedResponse) {
     if (!this.#handshakeKey) throw new Error('Handshake key not initialized.');
@@ -296,52 +340,80 @@ export class SecureGuest extends SecureP2PBase {
       encryptedResponse,
     );
 
+    // 2. Verify the nonce to ensure freshness and prevent replay attacks
+    if (responseData.nonce !== this.#joinNonce) {
+      throw new Error('Nonce verification failed! Possible replay attack.');
+    }
+
     if (!responseData.groupKey) {
       throw new Error('Host did not provide a group key.');
     }
 
-    // 2. Import the raw Group Key into the subtle crypto engine
+    // 3. Import the raw Group Key into the subtle crypto engine
     const groupKeyBuffer = SecureP2PBase._fromBase64(responseData.groupKey);
     this.groupKey = await crypto.subtle.importKey(
       'raw',
       groupKeyBuffer,
       { name: 'AES-GCM', length: 256 },
-      false, // Do not allow extraction from the guest
+      true, // Extractable, so the guest can persist their state across reloads
       ['encrypt', 'decrypt'],
     );
 
     // Handshake 1-to-1 key is no longer needed
     this.#handshakeKey = null;
+    this.#joinNonce = null;
   }
 
   /**
-   * Step 3b: Guest creates a Hello payload to test the new Group Key.
+   * Exports the Guest state as a JSON string for persistence.
    */
-  async createHello() {
-    // Generate a random blob (e.g., 8 bytes hex)
-    const randomBytes = crypto.getRandomValues(new Uint8Array(4));
-    this.#testBlob = Array.from(randomBytes)
-      .map(b => b.toString(16).padStart(2, '0'))
-      .join('');
-
-    return await this.encrypt({
-      action: 'hello',
-      blob: this.#testBlob,
-    });
+  async exportState() {
+    const state = {
+      ecdhPublicKey: this.ecdhKeyPair
+        ? await crypto.subtle.exportKey('jwk', this.ecdhKeyPair.publicKey)
+        : null,
+      ecdhPrivateKey: this.ecdhKeyPair
+        ? await crypto.subtle.exportKey('jwk', this.ecdhKeyPair.privateKey)
+        : null,
+      groupKey: this.groupKey
+        ? await crypto.subtle.exportKey('jwk', this.groupKey)
+        : null,
+    };
+    return JSON.stringify(state);
   }
 
   /**
-   * Step 5: Guest receives the Host's Welcome payload and verifies the blob.
+   * Imports a previously exported JSON state to resume the Guest session.
    */
-  async processWelcome(encryptedWelcome) {
-    const data = await this.decrypt(encryptedWelcome);
+  async importState(jsonString) {
+    const state = JSON.parse(jsonString);
 
-    if (data.action !== 'welcome' || data.blob !== this.#testBlob) {
-      // If this fails, either the host is malicious or the key is wrong.
-      this.groupKey = null;
-      throw new Error('Welcome verification failed! Disconnecting.');
+    if (state.ecdhPublicKey && state.ecdhPrivateKey) {
+      const pubKey = await crypto.subtle.importKey(
+        'jwk',
+        state.ecdhPublicKey,
+        { name: 'ECDH', namedCurve: 'P-256' },
+        true,
+        [],
+      );
+      const privKey = await crypto.subtle.importKey(
+        'jwk',
+        state.ecdhPrivateKey,
+        { name: 'ECDH', namedCurve: 'P-256' },
+        true,
+        ['deriveKey'],
+      );
+      this.ecdhKeyPair = { publicKey: pubKey, privateKey: privKey };
     }
 
-    return true; // Trust established!
+    if (state.groupKey) {
+      this.groupKey = await crypto.subtle.importKey(
+        'jwk',
+        state.groupKey,
+        { name: 'AES-GCM', length: 256 },
+        true,
+        ['encrypt', 'decrypt'],
+      );
+    }
   }
 }
