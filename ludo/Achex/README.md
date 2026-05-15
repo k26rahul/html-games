@@ -1,6 +1,6 @@
 # Achex.js
 
-A robust, Promise-based ES module wrapper for the Achex Cloud WebSocket infrastructure. It abstracts away legacy protocol quirks, handles connection states, manages automatic heartbeats, and routes incoming network data into a clean, event-driven API.
+A robust, Promise-based ES module wrapper for the Achex Cloud WebSocket infrastructure. It abstracts away legacy protocol quirks, handles connection states, manages automatic heartbeats, implements auto-reconnection, and routes incoming network data into a clean, event-driven API.
 
 ## The Achex Infrastructure
 
@@ -11,6 +11,7 @@ Because it is a legacy infrastructure, it comes with a few quirks that this wrap
 - **The Password Myth:** The authentication step requires a `passwd` field, but it is completely non-functional. Achex allows duplicate usernames and accepts any password. Our class automatically handles this handshake behind the scenes.
 - **Public and Unencrypted:** Any data sent over Achex is readable by anyone listening on the server. **This is why Achex is intended to be used in tandem with `SecureGroup.js**`, which encrypts your payloads using AES-GCM _before_ they are sent over the Achex network.
 - **Idle Kicks:** Achex aggressively disconnects idle sessions. This wrapper automatically runs a background heartbeat (ping) every 25 seconds to keep your connection alive.
+- **Network Instability:** Connections over public websockets can drop unexpectedly. This wrapper includes a customizable auto-reconnect feature to seamlessly restore the session without requiring a page reload.
 
 ## Core Concepts
 
@@ -26,14 +27,16 @@ The `Achex` class extends `EventEmitter`, inheriting methods like `.on()`, `.onc
 
 ### Initialization
 
-- **`new Achex({ url, username })`**:
+- **`new Achex(options)`**:
 - `url`: Defaults to `wss://cloud.achex.ca/stoloto.ru.net` (the highest capacity cloud instance).
 - `username`: Defaults to a randomly generated string.
+- `autoReconnect`: Automatically attempts to reconnect if the connection drops unexpectedly. Defaults to `true`.
+- `reconnectInterval`: Delay in milliseconds between reconnection attempts. Defaults to `3000`.
 
 ### Connection Management
 
 - **`await connect()`**: Initializes the WebSocket, performs the legacy authentication handshake, starts the heartbeat interval, and returns a Promise that resolves with your unique `sessionID`.
-- **`disconnect()`**: Gracefully closes the WebSocket and stops background heartbeats.
+- **`disconnect()`**: Gracefully closes the WebSocket, halts background heartbeats, and intentionally prevents auto-reconnection.
 
 ### Hub Management
 
@@ -50,9 +53,9 @@ The `Achex` class extends `EventEmitter`, inheriting methods like `.on()`, `.onc
 
 You can listen to these events using `.on('eventName', callback)`.
 
-- **Connection Events:** `'connected'`, `'disconnected'`, `'error'`
+- **Connection Events:** `'connected'`, `'disconnected'`, `'reconnecting'`, `'error'`
 - **Hub Events:** `'hub:joined'`, `'hub:left'`, `'hub:user_left'`
-- **Message Events:** \* `'message:hub'` - Fired when data arrives via a Hub broadcast.
+- **Message Events:** - `'message:hub'` - Fired when data arrives via a Hub broadcast.
 - `'message:user'` - Fired when data is sent to your Username.
 - `'message:session'` - Fired when data is sent directly to your SID.
 
@@ -62,8 +65,8 @@ You can listen to these events using `.on('eventName', callback)`.
 import Achex from './Achex.js';
 
 async function startNetwork() {
-  // 1. Initialize
-  const network = new Achex();
+  // 1. Initialize with auto-reconnect enabled (default)
+  const network = new Achex({ reconnectInterval: 3000 });
 
   // 2. Setup Listeners
   network.on('message:hub', data => {
@@ -72,6 +75,10 @@ async function startNetwork() {
 
   network.on('hub:user_left', data => {
     console.log(`${data.username} left the room.`);
+  });
+
+  network.on('reconnecting', () => {
+    console.log('Connection dropped. Attempting to reconnect...');
   });
 
   // 3. Connect (Awaitable)
@@ -94,7 +101,7 @@ startNetwork();
 
 ## Testing
 
-A comprehensive test suite utilizing a Mock WebSocket is included to deterministically verify connection promises, legacy handshake formatting, message routing, and graceful cleanup without spamming the live Achex servers.
+A comprehensive test suite utilizing a Mock WebSocket is included to deterministically verify connection promises, legacy handshake formatting, message routing, auto-reconnect behaviors, and graceful cleanup without spamming the live Achex servers.
 
 Run the tests using:
 
