@@ -168,7 +168,7 @@ async function runAchexTests() {
     await sendPromise;
 
     sendClient.joinHub('LudoRoom');
-    sendClient.sendToHub('LudoRoom', 'move_pawn');
+    sendClient.sendToHub('LudoRoom', 'move_token');
     sendClient.sendToSession(456, 'secret');
 
     const sent = sendClient.ws.sentMessages;
@@ -179,7 +179,7 @@ async function runAchexTests() {
     );
     assert.deepStrictEqual(
       sent[2],
-      { toH: 'LudoRoom', payload: 'move_pawn' },
+      { toH: 'LudoRoom', payload: 'move_token' },
       'TEST 5b Failed: sendToHub incorrect',
     );
     assert.deepStrictEqual(

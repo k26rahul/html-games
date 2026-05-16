@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Achex.js Multi-Connection Tester</title>
+    <style>
+      :root {
+        box-sizing: border-box;
+        font-family: monospace;
+        font-size: 13px;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: inherit;
+      }
+      body {
+        margin: 0;
+        padding: 20px;
+        color: #000;
+        background-color: #fff;
+      }
+      h1,
+      h2,
+      h3 {
+        margin: 0 0 10px 0;
+      }
+
+      .toolbar {
+        border-bottom: 2px solid #000;
+        padding-bottom: 15px;
+        margin-bottom: 20px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+        gap: 20px;
+        align-items: start;
+      }
+
+      .conn-box {
+        border: 1px solid #000;
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .box-header {
+        border-bottom: 1px dashed #000;
+        padding-bottom: 8px;
+      }
+
+      .control-row {
+        display: flex;
+        gap: 5px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .logs {
+        border: 1px inset #000;
+        background: #fdfdfd;
+        height: 200px;
+        overflow-y: scroll;
+        padding: 5px;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+
+      .log-entry {
+        margin-bottom: 5px;
+        border-bottom: 1px dotted #ccc;
+        padding-bottom: 5px;
+      }
+      .log-time {
+        color: #555;
+      }
+      .log-event {
+        font-weight: bold;
+      }
+
+      input,
+      select,
+      button {
+        font-family: inherit;
+        font-size: 12px;
+        padding: 4px 8px;
+        border: 1px solid #000;
+        background: #fff;
+      }
+      button {
+        cursor: pointer;
+      }
+      button:hover {
+        background: #eaeaea;
+      }
+      button:disabled {
+        border-color: #ccc;
+        color: #888;
+        cursor: not-allowed;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div class="toolbar">
+        <h2>Achex.js - Multi-Connection Tester</h2>
+        <div class="control-row">
+          <label>Instance:</label>
+          <select v-model="selectedInstance">
+            <option v-for="(url, name) in instances" :value="url">{{ name }}</option>
+          </select>
+
+          <label style="margin-left: 10px">New Username:</label>
+          <input v-model="newUsernameInput" :placeholder="defaultNextUsername" />
+          <button @click="createConnection">Create Connection</button>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="conn-box" v-for="conn in connections" :key="conn.id">
+          <div class="box-header">
+            <div><strong>Status:</strong> {{ conn.status }}</div>
+            <div><strong>Instance:</strong> {{ conn.url }}</div>
+            <div><strong>Username:</strong> {{ conn.username }}</div>
+            <div>
+              <strong>SID:</strong> {{ conn.sid !== null ? conn.sid : 'Not Assigned' }}
+            </div>
+            <div><strong>Current Hub:</strong> {{ conn.currentHub || 'None' }}</div>
+          </div>
+
+          <div class="control-row">
+            <button
+              @click="connectInstance(conn)"
+              :disabled="conn.status === 'Connected' || conn.status === 'Connecting...' || conn.status === 'Reconnecting...'"
+            >
+              Connect
+            </button>
+            <button
+              @click="disconnectInstance(conn)"
+              :disabled="conn.status !== 'Connected' && conn.status !== 'Reconnecting...'"
+            >
+              Disconnect
+            </button>
+          </div>
+
+          <div class="control-row">
+            <input v-model="conn.hubInput" placeholder="Hub Name" style="width: 100px" />
+            <button @click="joinHub(conn)" :disabled="conn.status !== 'Connected'">
+              Join Hub
+            </button>
+            <button @click="leaveHub(conn)" :disabled="!conn.currentHub">
+              Leave Hub
+            </button>
+          </div>
+
+          <div class="control-row" style="border-top: 1px dashed #ccc; padding-top: 8px">
+            <select v-model="conn.sendTargetType">
+              <option value="user">User</option>
+              <option value="session">Session</option>
+              <option value="hub">Hub</option>
+            </select>
+
+            <select v-model="conn.sendTarget" style="flex-grow: 1">
+              <option disabled value="">Select Target...</option>
+              <template v-if="conn.sendTargetType === 'user'">
+                <option v-for="u in globalUsernames" :value="u">{{ u }}</option>
+              </template>
+              <template v-else-if="conn.sendTargetType === 'session'">
+                <option v-for="s in globalSIDs" :value="s">{{ s }}</option>
+              </template>
+              <template v-else-if="conn.sendTargetType === 'hub'">
+                <option v-for="h in globalHubs" :value="h">{{ h }}</option>
+              </template>
+            </select>
+          </div>
+
+          <div class="control-row">
+            <input
+              v-model="conn.messagePayload"
+              placeholder="Enter message..."
+              style="flex-grow: 1"
+            />
+            <button
+              @click="sendMessage(conn)"
+              :disabled="conn.status !== 'Connected' || !conn.sendTarget"
+            >
+              Send
+            </button>
+          </div>
+
+          <strong>Event Logs:</strong>
+          <div class="logs" :id="'log-' + conn.id">
+            <div class="log-entry" v-for="log in conn.logs">
+              <span class="log-time">[{{ log.time }}]</span>
+              <span class="log-event">{{ log.event }}</span><br />
+              <span v-if="log.data">{{ log.data }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import {
+        createApp,
+        markRaw,
+      } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js';
+      import Achex from './Achex.js';
+
+      createApp({
+        data() {
+          return {
+            nextConnId: 1,
+            nextUserIdx: 1,
+            nextHubIdx: 1,
+
+            newUsernameInput: '',
+
+            selectedInstance: 'wss://cloud.achex.ca/',
+            instances: {
+              Root: 'wss://cloud.achex.ca/',
+              Stoloto: 'wss://cloud.achex.ca/stoloto.ru.net',
+              Agar: 'wss://cloud.achex.ca/agar.io',
+              Test: 'wss://cloud.achex.ca/testinst',
+            },
+
+            connections: [],
+
+            globalUsernames: [],
+            globalSIDs: [],
+            globalHubs: [],
+          };
+        },
+        computed: {
+          defaultNextUsername() {
+            return `User_${this.nextUserIdx}`;
+          },
+        },
+        methods: {
+          createConnection() {
+            const username = this.newUsernameInput.trim() || this.defaultNextUsername;
+
+            if (!this.newUsernameInput.trim()) {
+              this.nextUserIdx++;
+            }
+
+            if (!this.globalUsernames.includes(username)) {
+              this.globalUsernames.push(username);
+            }
+
+            const achexInstance = markRaw(
+              new Achex({
+                url: this.selectedInstance,
+                username: username,
+              }),
+            );
+
+            const connState = {
+              id: this.nextConnId++,
+              achexInstance: achexInstance,
+              status: 'Disconnected',
+              url: this.selectedInstance,
+              username: username,
+              sid: null,
+              currentHub: null,
+
+              hubInput: `Hub_${this.nextHubIdx}`,
+              sendTargetType: 'user',
+              sendTarget: '',
+              messagePayload: '',
+
+              logs: [],
+
+              // Attach the log function directly to the state so we can call it from the catch block
+              addLog(eventName, data) {
+                const time = new Date().toLocaleTimeString();
+
+                // Handle native Error objects which don't stringify well
+                if (data instanceof Error) {
+                  data = { message: data.message };
+                }
+
+                this.logs.push({
+                  time,
+                  event: eventName,
+                  data: data ? JSON.stringify(data, null, 2) : '',
+                });
+              },
+            };
+
+            this.attachEventListeners(connState);
+            this.connections.push(connState);
+            this.newUsernameInput = '';
+          },
+
+          attachEventListeners(conn) {
+            const instance = conn.achexInstance;
+
+            // Helper to scroll down after adding a log
+            const scrollLog = () => {
+              this.$nextTick(() => {
+                const el = document.getElementById('log-' + conn.id);
+                if (el) el.scrollTop = el.scrollHeight;
+              });
+            };
+
+            instance.on('connected', data => {
+              conn.status = 'Connected';
+              conn.sid = data.sessionID;
+              conn.addLog('connected', data);
+              scrollLog();
+
+              if (!this.globalSIDs.includes(data.sessionID)) {
+                this.globalSIDs.push(data.sessionID);
+              }
+            });
+
+            instance.on('disconnected', data => {
+              conn.status = 'Disconnected';
+              conn.sid = null;
+              conn.currentHub = null;
+              conn.addLog('disconnected', null);
+              scrollLog();
+            });
+
+            instance.on('reconnecting', () => {
+              conn.status = 'Reconnecting...';
+              conn.addLog('reconnecting', null);
+              scrollLog();
+            });
+
+            instance.on('error', err => {
+              // Fallback to "WebSocket Error" if the event doesn't have a message
+              conn.addLog('error', { message: err.message || 'Native WebSocket Error' });
+              scrollLog();
+            });
+
+            instance.on('hub:joined', data => {
+              conn.currentHub = data.hub;
+              conn.addLog('hub:joined', data);
+              scrollLog();
+
+              if (!this.globalHubs.includes(data.hub)) {
+                this.globalHubs.push(data.hub);
+              }
+
+              this.nextHubIdx++;
+              conn.hubInput = `Hub_${this.nextHubIdx}`;
+            });
+
+            instance.on('hub:left', data => {
+              conn.currentHub = null;
+              conn.addLog('hub:left', data);
+              scrollLog();
+            });
+
+            instance.on('hub:user_left', data => {
+              conn.addLog('hub:user_left', data);
+              scrollLog();
+            });
+
+            instance.on('message:hub', data => {
+              conn.addLog('message:hub', data);
+              scrollLog();
+            });
+            instance.on('message:user', data => {
+              conn.addLog('message:user', data);
+              scrollLog();
+            });
+            instance.on('message:session', data => {
+              conn.addLog('message:session', data);
+              scrollLog();
+            });
+          },
+
+          async connectInstance(conn) {
+            conn.status = 'Connecting...';
+            try {
+              await conn.achexInstance.connect();
+            } catch (err) {
+              // Now we properly catch and render the connection promise failure!
+              conn.addLog('connection_failed', err);
+              this.$nextTick(() => {
+                const el = document.getElementById('log-' + conn.id);
+                if (el) el.scrollTop = el.scrollHeight;
+              });
+            }
+          },
+
+          disconnectInstance(conn) {
+            conn.achexInstance.disconnect();
+          },
+
+          joinHub(conn) {
+            if (!conn.hubInput.trim()) return;
+            conn.achexInstance.joinHub(conn.hubInput.trim());
+          },
+
+          leaveHub(conn) {
+            if (!conn.currentHub) return;
+            conn.achexInstance.leaveHub(conn.currentHub);
+          },
+
+          sendMessage(conn) {
+            const payload = conn.messagePayload;
+            const target = conn.sendTarget;
+
+            if (!payload || !target) return;
+
+            if (conn.sendTargetType === 'user') {
+              conn.achexInstance.sendToUser(target, payload);
+              conn.addLog(`sent to User (${target})`, payload);
+            } else if (conn.sendTargetType === 'session') {
+              conn.achexInstance.sendToSession(parseInt(target), payload);
+              conn.addLog(`sent to Session (${target})`, payload);
+            } else if (conn.sendTargetType === 'hub') {
+              conn.achexInstance.sendToHub(target, payload);
+              conn.addLog(`sent to Hub (${target})`, payload);
+            }
+
+            conn.messagePayload = '';
+            this.$nextTick(() => {
+              const el = document.getElementById('log-' + conn.id);
+              if (el) el.scrollTop = el.scrollHeight;
+            });
+          },
+        },
+      }).mount('#app');
+    </script>
+  </body>
+</html>
