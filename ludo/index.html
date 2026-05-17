@@ -11,75 +11,57 @@
   <body>
     <main id="app">
       <div id="board">
-        <div class="base base-1">
+        <!-- 4 BASES -->
+        <div v-for="color in colors" :class="['base', color]">
           <div class="base-inner">
-            <div class="token-stay" v-for="n in 4" :key="n"></div>
-          </div>
-        </div>
-        <div class="base base-2">
-          <div class="base-inner">
-            <div class="token-stay" v-for="n in 4" :key="n"></div>
-          </div>
-        </div>
-        <div class="base base-3">
-          <div class="base-inner">
-            <div class="token-stay" v-for="n in 4" :key="n"></div>
-          </div>
-        </div>
-        <div class="base base-4">
-          <div class="base-inner">
-            <div class="token-stay" v-for="n in 4" :key="n"></div>
+            <div class="token-stay" v-for="n in 4" :key="n">
+              <div :class="['token', `token-${n}`]"></div>
+            </div>
           </div>
         </div>
 
-        <div class="board-home"></div>
-
-        <div class="gallery gallery-1 vertical">
-          <div class="path">
-            <div class="cell" v-for="n in 6" :key="n"></div>
-          </div>
-          <div class="path">
-            <div class="cell" v-for="n in 6" :key="n"></div>
-          </div>
-          <div class="path">
-            <div class="cell" v-for="n in 6" :key="n"></div>
-          </div>
-        </div>
-        <div class="gallery gallery-2">
-          <div class="path">
-            <div class="cell" v-for="n in 6" :key="n"></div>
-          </div>
-          <div class="path">
-            <div class="cell" v-for="n in 6" :key="n"></div>
-          </div>
-          <div class="path">
-            <div class="cell" v-for="n in 6" :key="n"></div>
-          </div>
-        </div>
-        <div class="gallery gallery-3 vertical">
-          <div class="path">
-            <div class="cell" v-for="n in 6" :key="n"></div>
-          </div>
-          <div class="path">
-            <div class="cell" v-for="n in 6" :key="n"></div>
-          </div>
-          <div class="path">
-            <div class="cell" v-for="n in 6" :key="n"></div>
-          </div>
-        </div>
-        <div class="gallery gallery-4">
-          <div class="path">
-            <div class="cell" v-for="n in 6" :key="n"></div>
-          </div>
-          <div class="path">
-            <div class="cell" v-for="n in 6" :key="n"></div>
-          </div>
-          <div class="path">
-            <div class="cell" v-for="n in 6" :key="n"></div>
+        <!-- 4 GALLERIES -->
+        <div
+          v-for="color in colors"
+          :class="['gallery', color, {vertical: shouldVerticalGalleryForColor(color)}]"
+        >
+          <div class="path" v-for="pathN in 3" :key="pathN">
+            <div class="cell" v-for="cellN in 6" :key="cellN">
+              <span class="star" v-if="shouldCellHaveStar(color, pathN, cellN)">☆</span>
+              <span class="arrow" v-if="shouldCellHaveArrow(color, pathN, cellN)">▶</span>
+            </div>
           </div>
         </div>
 
-        <!-- <div class="token" v-for="n in 16" :key="n"></div> -->
+        <!-- HOME -->
+        <div class="home">
+          <svg viewBox="0 0 100 100" class="center-triangle-svg">
+            <polygon points="0,0 50,50 0,100" fill="url(#grad-red)"></polygon>
+            <polygon points="0,0 100,0 50,50" fill="url(#grad-green)"></polygon>
+            <polygon points="100,0 100,100 50,50" fill="url(#grad-yellow)"></polygon>
+            <polygon points="0,100 50,50 100,100" fill="url(#grad-blue)"></polygon>
+            <defs>
+              <linearGradient id="grad-red" x1="0%" y1="0%" x2="100%" y2="50%">
+                <stop offset="0%" stop-color="#a00"></stop>
+                <stop offset="100%" stop-color="#e6211c"></stop>
+              </linearGradient>
+              <linearGradient id="grad-green" x1="0%" y1="0%" x2="50%" y2="100%">
+                <stop offset="0%" stop-color="#2b8c2d"></stop>
+                <stop offset="100%" stop-color="#3bb54a"></stop>
+              </linearGradient>
+              <linearGradient id="grad-yellow" x1="100%" y1="0%" x2="50%" y2="50%">
+                <stop offset="0%" stop-color="#d89000"></stop>
+                <stop offset="100%" stop-color="#fbc00b"></stop>
+              </linearGradient>
+              <linearGradient id="grad-blue" x1="0%" y1="100%" x2="50%" y2="50%">
+                <stop offset="0%" stop-color="#005a90"></stop>
+                <stop offset="100%" stop-color="#009cd0"></stop>
+              </linearGradient>
+            </defs>
+            <line x1="0" y1="0" x2="100" y2="100" stroke="#000" stroke-width="0.5"></line>
+            <line x1="100" y1="0" x2="0" y2="100" stroke="#000" stroke-width="0.5"></line>
+          </svg>
+        </div>
       </div>
     </main>
   </body>
