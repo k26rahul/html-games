@@ -16,10 +16,30 @@ const app = Vue.createApp({
       if (color == 'blue' && pathN == 3 && cellN == 5) return true;
     },
     shouldCellHaveArrow(color, pathN, cellN) {
-      if (color == 'red' && pathN == 2 && cellN == 1) return true;
-      if (color == 'green' && pathN == 2 && cellN == 1) return true;
-      if (color == 'yellow' && pathN == 2 && cellN == 6) return true;
-      if (color == 'blue' && pathN == 2 && cellN == 6) return true;
+      if (pathN == 2) {
+        if (color == 'red' && cellN == 1) return true;
+        if (color == 'green' && cellN == 1) return true;
+        if (color == 'yellow' && cellN == 6) return true;
+        if (color == 'blue' && cellN == 6) return true;
+      }
+    },
+    shouldCellBeColored(color, pathN, cellN) {
+      if (color == 'red') {
+        if (pathN == 2 && cellN != 1) return true;
+        if (pathN == 1 && cellN == 2) return true;
+      }
+      if (color == 'green') {
+        if (pathN == 2 && cellN != 1) return true;
+        if (pathN == 3 && cellN == 2) return true;
+      }
+      if (color == 'yellow') {
+        if (pathN == 2 && cellN != 6) return true;
+        if (pathN == 3 && cellN == 5) return true;
+      }
+      if (color == 'blue') {
+        if (pathN == 2 && cellN != 6) return true;
+        if (pathN == 1 && cellN == 5) return true;
+      }
     },
   },
 });

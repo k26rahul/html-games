@@ -1,9 +1,11 @@
 :root {
   --board-size: calc(min(100vw, 100vh) - 2rem);
   --cell-size: calc(var(--board-size) / 15);
+
   --base-size: calc(var(--cell-size) * 6);
   --base-inner-size: calc(var(--cell-size) * 5);
   --home-size: calc(var(--cell-size) * 3);
+
   --token-size: calc(0.875 * var(--cell-size));
   --token-stay-size: calc(1.25 * var(--cell-size));
   --token-stay-margin: calc(1.5 * var(--cell-size));
@@ -36,6 +38,30 @@
     var(--color-blue) 0%,
     var(--color-blue-darker) 100%
   );
+}
+
+.red {
+  --color-normal: var(--color-red);
+  --color-darker: var(--color-red-darker);
+  --grad: var(--grad-red);
+}
+
+.green {
+  --color-normal: var(--color-green);
+  --color-darker: var(--color-green-darker);
+  --grad: var(--grad-green);
+}
+
+.yellow {
+  --color-normal: var(--color-yellow);
+  --color-darker: var(--color-yellow-darker);
+  --grad: var(--grad-yellow);
+}
+
+.blue {
+  --color-normal: var(--color-blue);
+  --color-darker: var(--color-blue-darker);
+  --grad: var(--grad-blue);
 }
 
 * {
@@ -75,6 +101,7 @@ body,
   justify-content: center;
   align-items: center;
   border: 2px solid black;
+  background-image: var(--grad);
 }
 
 .base-inner {
@@ -133,20 +160,8 @@ body,
   height: var(--token-size);
   border-radius: 50%;
   border: 1px solid black;
-  background-color: var(--color-red-darker);
   box-shadow: 0 2px 8px 2px rgba(0, 0, 0, 0.1);
-}
-
-.green .token {
-  background-color: var(--color-green-darker);
-}
-
-.yellow .token {
-  background-color: var(--color-yellow-darker);
-}
-
-.blue .token {
-  background-color: var(--color-blue-darker);
+  background-color: var(--color-darker);
 }
 
 /* absolute portioning of board components */
@@ -154,25 +169,21 @@ body,
 .base.red {
   top: 0;
   left: 0;
-  background: var(--grad-red);
 }
 
 .base.green {
   top: 0;
   right: 0;
-  background: var(--grad-green);
 }
 
 .base.yellow {
   bottom: 0;
   right: 0;
-  background: var(--grad-yellow);
 }
 
 .base.blue {
   bottom: 0;
   left: 0;
-  background: var(--grad-blue);
 }
 
 .home {
@@ -220,24 +231,13 @@ body,
   left: var(--token-stay-margin);
 }
 
-.gallery.red .path:nth-child(2) .cell:not(:nth-child(1)),
-.gallery.red .path:nth-child(1) .cell:nth-child(2) {
-  background-color: var(--color-red-darker);
+.cell.colored {
+  background-color: var(--color-darker);
 }
 
-.gallery.green .path:nth-child(2) .cell:not(:nth-child(1)),
-.gallery.green .path:nth-child(3) .cell:nth-child(2) {
-  background-color: var(--color-green-darker);
-}
-
-.gallery.yellow .path:nth-child(2) .cell:not(:nth-child(6)),
-.gallery.yellow .path:nth-child(3) .cell:nth-child(5) {
-  background-color: var(--color-yellow);
-}
-
-.gallery.blue .path:nth-child(2) .cell:not(:nth-child(6)),
-.gallery.blue .path:nth-child(1) .cell:nth-child(5) {
-  background-color: var(--color-blue);
+.yellow .cell.colored,
+.blue .cell.colored {
+  background-color: var(--color-normal);
 }
 
 .star {
@@ -247,20 +247,17 @@ body,
 
 .arrow {
   font-size: 1.5rem;
-  color: var(--color-red);
+  color: var(--color-normal);
 }
 
 .green .arrow {
   transform: rotateZ(90deg);
-  color: var(--color-green);
 }
 
 .yellow .arrow {
   transform: rotateZ(180deg);
-  color: var(--color-yellow);
 }
 
 .blue .arrow {
   transform: rotateZ(270deg);
-  color: var(--color-blue);
 }

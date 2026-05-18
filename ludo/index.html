@@ -26,7 +26,11 @@
           :class="['gallery', color, {vertical: shouldVerticalGalleryForColor(color)}]"
         >
           <div class="path" v-for="pathN in 3" :key="pathN">
-            <div class="cell" v-for="cellN in 6" :key="cellN">
+            <div
+              :class="['cell', {colored: shouldCellBeColored(color, pathN, cellN)}]"
+              v-for="cellN in 6"
+              :key="cellN"
+            >
               <span class="star" v-if="shouldCellHaveStar(color, pathN, cellN)">☆</span>
               <span class="arrow" v-if="shouldCellHaveArrow(color, pathN, cellN)">▶</span>
             </div>
