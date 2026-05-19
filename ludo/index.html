@@ -11,19 +11,24 @@
   <body>
     <main id="app">
       <div id="board">
+        <!-- 16 TOKENS -->
+        <div
+          v-for="n in 16"
+          :key="n"
+          :class="['token', `token-${n}`, getColorForToken(n)]"
+        ></div>
+
         <!-- 4 BASES -->
         <div v-for="color in colors" :class="['base', color]">
           <div class="base-inner">
-            <div class="token-stay" v-for="n in 4" :key="n">
-              <div :class="['token', `token-${n}`]"></div>
-            </div>
+            <div class="token-stay" v-for="n in 4" :key="n"></div>
           </div>
         </div>
 
         <!-- 4 GALLERIES -->
         <div
           v-for="color in colors"
-          :class="['gallery', color, {vertical: shouldVerticalGalleryForColor(color)}]"
+          :class="['gallery', color, {vertical: shouldGalleryBeVertical(color)}]"
         >
           <div class="path" v-for="pathN in 3" :key="pathN">
             <div

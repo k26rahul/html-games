@@ -6,8 +6,8 @@
   --base-inner-size: calc(var(--cell-size) * 5);
   --home-size: calc(var(--cell-size) * 3);
 
-  --token-size: calc(0.875 * var(--cell-size));
-  --token-stay-size: calc(1.25 * var(--cell-size));
+  --token-size: calc(0.8 * var(--cell-size));
+  --token-stay-size: calc(1.2 * var(--cell-size));
   --token-stay-margin: calc(1.5 * var(--cell-size));
 
   --color-red: rgb(204, 0, 0);
@@ -90,7 +90,7 @@ body,
   width: var(--board-size);
   height: var(--board-size);
   position: relative;
-  outline: 4px solid black;
+  /* outline: 4px solid black; */
 }
 
 .base {
@@ -100,14 +100,14 @@ body,
   display: flex;
   justify-content: center;
   align-items: center;
-  border: 2px solid black;
+  /* border: 2px solid black; */
   background-image: var(--grad);
 }
 
 .base-inner {
   width: var(--base-inner-size);
   height: var(--base-inner-size);
-  border-radius: 50%;
+  /* border-radius: 50%; */
   background-color: white;
 }
 
@@ -124,7 +124,16 @@ body,
   display: flex;
   justify-content: center;
   align-items: center;
-  border: 1px solid black;
+  background-color: cyan;
+  /* border: 1px solid black; */
+}
+
+.path:nth-child(even) .cell:nth-child(odd) {
+  background-color: bisque;
+}
+
+.path:nth-child(odd) .cell:nth-child(even) {
+  background-color: bisque;
 }
 
 .gallery {
@@ -158,9 +167,12 @@ body,
 .token {
   width: var(--token-size);
   height: var(--token-size);
-  border-radius: 50%;
-  border: 1px solid black;
-  box-shadow: 0 2px 8px 2px rgba(0, 0, 0, 0.1);
+  position: absolute;
+  z-index: 1;
+  /* border-radius: 50%; */
+  /* border: 1px solid black; */
+  /* box-shadow: 0 2px 8px 2px rgba(0, 0, 0, 0.1); */
+  /* background-color: var(--color-darker); */
   background-color: var(--color-darker);
 }
 
@@ -232,12 +244,12 @@ body,
 }
 
 .cell.colored {
-  background-color: var(--color-darker);
+  background-color: var(--color-darker) !important;
 }
 
 .yellow .cell.colored,
 .blue .cell.colored {
-  background-color: var(--color-normal);
+  background-color: var(--color-normal) !important;
 }
 
 .star {
@@ -260,4 +272,36 @@ body,
 
 .blue .arrow {
   transform: rotateZ(270deg);
+}
+
+.token-1 {
+  /* gallery */
+  transform: translate(
+    calc((0 + 0.1) * var(--cell-size)),
+    calc((6 + 0.1) * var(--cell-size))
+  );
+
+  /* stay 1 */
+  transform: translate(
+    calc((1.5 + 0.2 + 1 * 9) * var(--cell-size)),
+    calc((1.5 + 0.2 + 1 * 9) * var(--cell-size))
+  );
+
+  /* stay 2 */
+  /* transform: translate(
+    calc((6 - 1.5 - 1.2 + 0.2) * var(--cell-size)),
+    calc((0 + 1.5 + 0.2) * var(--cell-size))
+  ); */
+
+  /* stay 3 */
+  /* transform: translate(
+    calc((0 + 1.5 + 0.2) * var(--cell-size)),
+    calc((6 - 1.5 - 1.2 + 0.2) * var(--cell-size))
+  ); */
+
+  /* stay 4 */
+  /* transform: translate(
+    calc((6 - 1.5 - 1.2 + 0.2) * var(--cell-size)),
+    calc((6 - 1.5 - 1.2 + 0.2) * var(--cell-size))
+  ); */
 }

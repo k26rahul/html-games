@@ -1,12 +1,15 @@
 const app = Vue.createApp({
   data() {
+    let tmp = [-1, -2, -3, -4];
+
     return {
       colors: ['red', 'green', 'yellow', 'blue'],
+      tokenState: [...tmp, ...tmp, ...tmp, ...tmp],
     };
   },
 
   methods: {
-    shouldVerticalGalleryForColor(color) {
+    shouldGalleryBeVertical(color) {
       return ['green', 'blue'].includes(color);
     },
     shouldCellHaveStar(color, pathN, cellN) {
@@ -41,6 +44,52 @@ const app = Vue.createApp({
         if (pathN == 1 && cellN == 5) return true;
       }
     },
+    getColorForToken(n) {
+      if (n <= 4) return 'red';
+      if (n <= 8) return 'green';
+      if (n <= 12) return 'yellow';
+      return 'blue';
+    },
+  },
+
+  mounted() {
+    let colorToBaseStayCoordinates = {
+      red: [0, 0],
+      green: [1, 0],
+      yellow: [1, 1],
+      blue: [0, 1],
+    };
+
+    this.tokenState.forEach((location, tokenId) => {
+      let elem = document.querySelector(`.token-${tokenId + 1}`);
+      let color = this.getColorForToken(tokenId + 1);
+      let [i, j] = colorToBaseStayCoordinates[color];
+
+      if (location == -1) {
+        elem.style.transform = `translate(
+                                  calc((1.5 + 0.2 + ${i} * 9) * var(--cell-size)),
+                                  calc((1.5 + 0.2 + ${j} * 9) * var(--cell-size))
+                                )`;
+      }
+      if (location == -2) {
+        elem.style.transform = `translate(
+                                  calc((6 - 1.5 - 1.2 + 0.2 + ${i} * 9) * var(--cell-size)),
+                                  calc((0 + 1.5 + 0.2 + ${j} * 9) * var(--cell-size))
+                                )`;
+      }
+      if (location == -3) {
+        elem.style.transform = `translate(
+                                  calc((0 + 1.5 + 0.2 + ${i} * 9) * var(--cell-size)),
+                                  calc((6 - 1.5 - 1.2 + 0.2 + ${j} * 9) * var(--cell-size))
+                                )`;
+      }
+      if (location == -4) {
+        elem.style.transform = `translate(
+                                  calc((6 - 1.5 - 1.2 + 0.2 + ${i} * 9) * var(--cell-size)),
+                                  calc((6 - 1.5 - 1.2 + 0.2 + ${j} * 9) * var(--cell-size))
+                                )`;
+      }
+    });
   },
 });
 
