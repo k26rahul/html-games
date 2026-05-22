@@ -1,3 +1,7 @@
+import LudoGame from './LudoGame.js';
+
+const game = new LudoGame();
+
 const app = Vue.createApp({
   data() {
     let tmp = [-1, -2, -3, -4];
@@ -13,10 +17,10 @@ const app = Vue.createApp({
       return ['green', 'blue'].includes(color);
     },
     shouldCellHaveStar(color, pathN, cellN) {
-      if (color == 'red' && pathN == 3 && cellN == 2) return true;
-      if (color == 'green' && pathN == 1 && cellN == 2) return true;
-      if (color == 'yellow' && pathN == 1 && cellN == 5) return true;
-      if (color == 'blue' && pathN == 3 && cellN == 5) return true;
+      if (color == 'red' && pathN == 3 && cellN == 3) return true;
+      if (color == 'green' && pathN == 1 && cellN == 3) return true;
+      if (color == 'yellow' && pathN == 1 && cellN == 4) return true;
+      if (color == 'blue' && pathN == 3 && cellN == 4) return true;
     },
     shouldCellHaveArrow(color, pathN, cellN) {
       if (pathN == 2) {
