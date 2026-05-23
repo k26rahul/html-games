@@ -368,7 +368,7 @@
           </div>
 
           <div class="control-row" style="border-top: 1px dashed rgba(255, 255, 255, 0.1); padding-top: 12px">
-            <select v-model="conn.sendTargetType">
+            <select v-model="conn.sendTargetType" @change="conn.sendTarget = ''">
               <option value="user">User</option>
               <option value="session">Session</option>
               <option value="hub">Hub</option>
