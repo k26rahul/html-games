@@ -27,15 +27,20 @@ export default {
       },
 
       connections: [],
-
-      globalUsernames: [],
-      globalSIDs: [],
-      globalHubs: [],
     };
   },
   computed: {
     defaultNextUsername() {
       return `User_${this.nextUserIdx}`;
+    },
+    globalUsernames() {
+      return [...new Set(this.connections.map(c => c.username))];
+    },
+    globalSIDs() {
+      return [...new Set(this.connections.filter(c => c.sid).map(c => c.sid))];
+    },
+    globalHubs() {
+      return [...new Set(this.connections.filter(c => c.currentHub).map(c => c.currentHub))];
     },
   },
   methods: {
@@ -44,10 +49,6 @@ export default {
 
       if (!this.newUsernameInput.trim()) {
         this.nextUserIdx++;
-      }
-
-      if (!this.globalUsernames.includes(username)) {
-        this.globalUsernames.push(username);
       }
 
       const achexInstance = markRaw(
@@ -113,10 +114,6 @@ export default {
         conn.sid = data.sessionID;
         conn.addLog('connected', data);
         scrollLog();
-
-        if (!this.globalSIDs.includes(data.sessionID)) {
-          this.globalSIDs.push(data.sessionID);
-        }
       });
 
       instance.on('disconnected', data => {
@@ -142,10 +139,6 @@ export default {
         conn.currentHub = data.hub;
         conn.addLog('hub:joined', data);
         scrollLog();
-
-        if (!this.globalHubs.includes(data.hub)) {
-          this.globalHubs.push(data.hub);
-        }
       });
 
       instance.on('hub:left', data => {
@@ -188,6 +181,13 @@ export default {
 
     disconnectInstance(conn) {
       conn.achexInstance.disconnect();
+    },
+
+    deleteInstance(conn) {
+      if (conn.status === 'Connected' || conn.status === 'Connecting...' || conn.status === 'Reconnecting...') {
+        conn.achexInstance.disconnect();
+      }
+      this.connections = this.connections.filter(c => c.id !== conn.id);
     },
 
     joinHub(conn) {
@@ -288,6 +288,7 @@ export default {
         :globalHubs="globalHubs"
         @connect-instance="connectInstance"
         @disconnect-instance="disconnectInstance"
+        @delete-instance="deleteInstance"
         @join-hub="joinHub"
         @leave-hub="leaveHub"
         @send-message="sendMessage"

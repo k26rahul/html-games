@@ -11,6 +11,7 @@ export default {
   emits: [
     'connect-instance', 
     'disconnect-instance', 
+    'delete-instance',
     'join-hub', 
     'leave-hub', 
     'send-message', 
@@ -48,6 +49,14 @@ export default {
           :disabled="conn.status !== 'Connected' && conn.status !== 'Reconnecting...'"
         >
           Disconnect
+        </button>
+        <button
+          class="btn-disconnect"
+          @click="$emit('delete-instance', conn)"
+          style="margin-left: auto;"
+          title="Delete this connection instance"
+        >
+          Delete
         </button>
       </div>
 
