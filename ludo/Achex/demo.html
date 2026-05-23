@@ -368,13 +368,13 @@
           </div>
 
           <div class="control-row" style="border-top: 1px dashed rgba(255, 255, 255, 0.1); padding-top: 12px">
-            <select v-model="conn.sendTargetType" @change="conn.sendTarget = ''">
+            <select v-model="conn.sendTargetType" @change="handleTargetTypeChange(conn)">
               <option value="user">User</option>
               <option value="session">Session</option>
               <option value="hub">Hub</option>
             </select>
 
-            <select v-model="conn.sendTarget" style="flex-grow: 1">
+            <select v-model="conn.sendTarget" @change="updateSelectedTargetTracker(conn)" style="flex-grow: 1">
               <option disabled value="">Select Target...</option>
               <template v-if="conn.sendTargetType === 'user'">
                 <option v-for="u in globalUsernames" :value="u">{{ u }}</option>
@@ -388,19 +388,19 @@
             </select>
           </div>
 
-          <div class="control-row">
+          <form @submit.prevent="sendMessage(conn)" class="control-row">
             <input
               v-model="conn.messagePayload"
               placeholder="Enter message..."
               style="flex-grow: 1"
             />
             <button
-              @click="sendMessage(conn)"
+              type="submit"
               :disabled="conn.status !== 'Connected' || !conn.sendTarget"
             >
               Send
             </button>
-          </div>
+          </form>
 
           <strong style="color: var(--text-muted); font-size: 0.9rem; font-weight: 500;">Event Logs:</strong>
           <div class="logs" :id="'log-' + conn.id">
@@ -469,6 +469,8 @@
               }),
             );
 
+            const initialUser = this.globalUsernames.length > 0 ? this.globalUsernames[0] : '';
+
             const connState = {
               id: this.nextConnId++,
               achexInstance: achexInstance,
@@ -480,7 +482,10 @@
 
               hubInput: 'Hub_1',
               sendTargetType: 'user',
-              sendTarget: '',
+              sendTarget: initialUser,
+              selectedUserTarget: initialUser,
+              selectedSessionTarget: '',
+              selectedHubTarget: '',
               messagePayload: 'Hello!',
 
               logs: [],
@@ -633,6 +638,50 @@
               const el = document.getElementById('log-' + conn.id);
               if (el) el.scrollTop = el.scrollHeight;
             });
+          },
+
+          handleTargetTypeChange(conn) {
+            const type = conn.sendTargetType;
+            if (type === 'user') {
+              if (conn.selectedUserTarget) {
+                conn.sendTarget = conn.selectedUserTarget;
+              } else if (this.globalUsernames.length > 0) {
+                conn.sendTarget = this.globalUsernames[0];
+                conn.selectedUserTarget = this.globalUsernames[0];
+              } else {
+                conn.sendTarget = '';
+              }
+            } else if (type === 'session') {
+              if (conn.selectedSessionTarget) {
+                conn.sendTarget = conn.selectedSessionTarget;
+              } else if (this.globalSIDs.length > 0) {
+                conn.sendTarget = this.globalSIDs[0];
+                conn.selectedSessionTarget = this.globalSIDs[0];
+              } else {
+                conn.sendTarget = '';
+              }
+            } else if (type === 'hub') {
+              if (conn.selectedHubTarget) {
+                conn.sendTarget = conn.selectedHubTarget;
+              } else if (this.globalHubs.length > 0) {
+                conn.sendTarget = this.globalHubs[0];
+                conn.selectedHubTarget = this.globalHubs[0];
+              } else {
+                conn.sendTarget = '';
+              }
+            }
+          },
+
+          updateSelectedTargetTracker(conn) {
+            const type = conn.sendTargetType;
+            const target = conn.sendTarget;
+            if (type === 'user') {
+              conn.selectedUserTarget = target;
+            } else if (type === 'session') {
+              conn.selectedSessionTarget = target;
+            } else if (type === 'hub') {
+              conn.selectedHubTarget = target;
+            }
           },
         },
       }).mount('#app');
