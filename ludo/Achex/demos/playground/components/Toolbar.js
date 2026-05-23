@@ -11,7 +11,7 @@ export default {
   emits: ['update:selectedInstance', 'update:newUsernameInput', 'create-connection'],
   template: html`
     <div class="toolbar">
-      <h2>Achex.js - Multi-Connection Tester</h2>
+      <h2>Achex.js - Playground</h2>
       <div class="toolbar-desc">Test multiple connections, join hubs, and route messages across instances.</div>
       <div class="control-row">
         <label>Instance:</label>

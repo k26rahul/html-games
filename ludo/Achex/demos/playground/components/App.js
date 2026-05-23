@@ -1,5 +1,5 @@
 import { html } from '../utils/html.js';
-import Achex from '../../Achex.js';
+import Achex from '../../../Achex.js';
 import Toolbar from './Toolbar.js';
 import ConnectionBox from './ConnectionBox.js';
 import { markRaw } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js';

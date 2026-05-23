@@ -1,4 +1,4 @@
-# Achex.js Multi-Connection Tester
+# Achex.js Playground
 
 ## Architecture Overview
 
@@ -11,7 +11,7 @@ The core philosophy is simplicity and modularity:
 
 ## How It Works
 
-The application serves as a multi-connection testing interface for `Achex.js`. It allows users to instantiate multiple independent websocket connections to various hubs and route messages simultaneously across different instances.
+The application serves as a playground interface for `Achex.js`. It allows users to instantiate multiple independent websocket connections to various hubs and route messages simultaneously across different instances.
 
 State is managed centrally in the root `App` component. It tracks all active connections (`connections`), global usernames, session IDs, and active hubs. Each time a connection is created, it is pushed to the central state, and the `App` component passes down the relevant data and event listeners to the individual `ConnectionBox` components.
 
