@@ -141,7 +141,10 @@ export default class Achex extends EventEmitter {
   }
 
   leaveHub(hubName) {
-    if (this.currentHub === hubName) this.currentHub = null;
+    if (this.currentHub === hubName) {
+      this.currentHub = null;
+      this.emit('hub:left', { hub: hubName });
+    }
     this.send({ leaveHub: hubName });
   }
 
