@@ -10,7 +10,7 @@ The Chat Room is a real-time, multi-user messaging application demonstrating the
 
 - **Room Generation & Sharing:** Users can create unique rooms and invite others using shareable URL query parameters (`?room=ID`) and auto-generated QR codes.
 - **Anonymous Identity:** Users join with a random Adjective-Noun display name and a randomized SVG avatar generated via the Dicebear API.
-- **UUID Routing:** Under the hood, every participant establishes an Achex connection using a unique `crypto.randomUUID()` to prevent server-side naming collisions, while maintaining their user-facing Display Name locally via JSON message payloads.
+- **UUID Routing:** Under the hood, every participant establishes an Achex connection using a unique `crypto.randomUUID()` as their username, while maintaining their user-facing Display Name locally via JSON message payloads.
 - **Live Presence & Heartbeats:** The application broadcasts background "presence" pings every 5 seconds. Stale users are swept from the roster automatically, providing an accurate, real-time "Online Users" list.
 - **System Messaging:** Automatically broadcasts system-level events (e.g., "User X joined the room") distinct from standard chat messages.
 
