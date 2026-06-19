@@ -4,11 +4,16 @@ const game = new LudoGame();
 
 const app = Vue.createApp({
   data() {
-    let tmp = [-1, -2, -3, -4];
+    let baseLocations = [-1, -2, -3, -4];
 
     return {
       colors: ['red', 'green', 'yellow', 'blue'],
-      tokenState: [...tmp, ...tmp, ...tmp, ...tmp],
+      tokenState: [
+        ...baseLocations,
+        ...baseLocations,
+        ...baseLocations,
+        ...baseLocations,
+      ],
     };
   },
 
