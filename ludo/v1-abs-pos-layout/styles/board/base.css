@@ -5,7 +5,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  border: 0.25vh solid black;
+  border: var(--base-border-width) solid black;
   background-image: var(--grad);
 
   &.red {

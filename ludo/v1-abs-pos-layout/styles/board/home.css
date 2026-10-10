@@ -1,7 +1,7 @@
 .home {
   width: var(--home-size);
   height: var(--home-size);
-  border: 0.1vh solid black;
+  border: var(--home-border-width) solid black;
   position: absolute;
   top: var(--base-size);
   left: var(--base-size);

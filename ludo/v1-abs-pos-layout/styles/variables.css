@@ -13,15 +13,26 @@
   --token-size: calc(0.8 * var(--cell-size));
   --token-base-size: calc(1.2 * var(--cell-size));
 
+  /* Placement of token bases */
   --token-base-margin-short: calc(1.5 * var(--cell-size));
-  --token-margin-short: calc(
-    (1.5 + 0.2) * var(--cell-size)
-  ); /* 0.2 = (token-base-size - token-size) / 2 */
-
   --token-base-margin-long: calc(
-    3.3 * var(--cell-size)
-  ); /* 3.3 = base-size - token-base-margin-short - token-base-size */
-  --token-margin-long: calc((3.3 + 0.2) * var(--cell-size)); /* 0.2 = ... */
+    var(--base-size) - var(--token-base-margin-short) - var(--token-base-size)
+  );
+
+  /* Centering offset of token inside token base */
+  --token-center-offset: calc((var(--token-base-size) - var(--token-size)) / 2);
+
+  --token-margin-short: calc(var(--token-base-margin-short) + var(--token-center-offset));
+  --token-margin-long: calc(var(--token-base-margin-long) + var(--token-center-offset));
+}
+
+:root {
+  --board-outline-width: 0.4vh;
+  --base-border-width: 0.1vh;
+  --home-border-width: 0.1vh;
+  --cell-border-width: 0.1vh;
+  --token-border-width: 0.1vh;
+  --token-base-border-width: 0.4vh;
 }
 
 :root {

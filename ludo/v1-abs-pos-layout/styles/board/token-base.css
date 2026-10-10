@@ -6,7 +6,7 @@
   justify-content: center;
   align-items: center;
   border-radius: 50%;
-  border: 0.25vh dashed #e0e0e0;
+  border: var(--token-base-border-width) dashed #e0e0e0;
 }
 
 .token-base-1 {

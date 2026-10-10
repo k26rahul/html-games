@@ -4,7 +4,7 @@
   position: absolute;
   z-index: 1;
   border-radius: 50%;
-  border: 0.1vh solid black;
+  border: var(--token-border-width) solid black;
   box-shadow: 0 0.1vh 0.4vh 0.1vh rgba(0, 0, 0, 0.1);
   background-color: var(--color-darker);
 }
