@@ -29,6 +29,7 @@
               :key="cell.id"
               :class="['cell', { colored: cell.colored }]"
             >
+              <span class="cell-number">{{ cell.number }}</span>
               <span class="star" v-if="cell.hasStar">☆</span>
               <span class="arrow" v-if="cell.hasArrow">▶</span>
             </div>

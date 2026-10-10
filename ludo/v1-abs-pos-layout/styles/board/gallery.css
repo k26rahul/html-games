@@ -37,12 +37,35 @@
 }
 
 .cell {
+  position: relative;
   width: var(--cell-size);
   height: var(--cell-size);
   display: flex;
   justify-content: center;
   align-items: center;
   border: var(--cell-border-width) solid black;
+}
+
+.cell-number {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: calc(0.32 * var(--cell-size));
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.28);
+  pointer-events: none;
+  user-select: none;
+  z-index: 2;
+  line-height: 1;
+}
+
+.cell.colored .cell-number {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.yellow .cell.colored .cell-number {
+  color: rgba(0, 0, 0, 0.35);
 }
 
 .cell.colored {
