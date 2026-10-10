@@ -6,29 +6,30 @@
     <title>Ludo</title>
     <link rel="stylesheet" href="styles/main.css" />
     <script src="https://unpkg.com/vue@3.5.34/dist/vue.global.js"></script>
-    <script type="module" src="main.js" defer></script>
+    <script type="module" src="scripts/main.js" defer></script>
   </head>
   <body>
     <main id="app">
       <div id="board">
         <!-- 4 BASES -->
-        <div v-for="color in colors" :class="['base', color]">
+        <div v-for="color in colors" :key="color" :class="['base', color]">
           <div class="base-inner"></div>
         </div>
 
         <!-- 4 GALLERIES -->
         <div
-          v-for="color in colors"
-          :class="['gallery', color, {vertical: shouldGalleryBeVertical(color)}]"
+          v-for="gallery in galleries"
+          :key="gallery.color"
+          :class="['gallery', gallery.color, { vertical: gallery.isVertical }]"
         >
-          <div class="path" v-for="pathN in 3" :key="pathN">
+          <div class="path" v-for="(path, pIndex) in gallery.paths" :key="pIndex">
             <div
-              :class="['cell', {colored: shouldCellBeColored(color, pathN, cellN)}]"
-              v-for="cellN in 6"
-              :key="cellN"
+              v-for="cell in path"
+              :key="cell.id"
+              :class="['cell', { colored: cell.colored }]"
             >
-              <span class="star" v-if="shouldCellHaveStar(color, pathN, cellN)">☆</span>
-              <span class="arrow" v-if="shouldCellHaveArrow(color, pathN, cellN)">▶</span>
+              <span class="star" v-if="cell.hasStar">☆</span>
+              <span class="arrow" v-if="cell.hasArrow">▶</span>
             </div>
           </div>
         </div>
@@ -40,9 +41,9 @@
 
         <!-- 16 TOKENS -->
         <div
-          v-for="n in 16"
-          :key="n"
-          :class="['token', `token-${n}`, getColorForToken(n)]"
+          v-for="token in tokens"
+          :key="token.id"
+          :class="['token', `token-${token.id}`, token.color]"
         ></div>
 
         <!-- 16 TOKEN-BASES -->
