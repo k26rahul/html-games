@@ -2,14 +2,56 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HTML Games</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 0 20px;
+            color: #222;
+            line-height: 1.6;
+        }
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        a {
+            color: #0969da;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .desc {
+            color: #666;
+            font-size: 0.9rem;
+        }
+    </style>
 </head>
 <body>
+    <h1>HTML Games &amp; Demos</h1>
+
     <ul>
-        <li><a href="./demo.html">./demo.html</a></li>
-        <li><a href="./ludo/">./ludo/</a></li>
-        <li><a href="./ludo/Achex/demos/playground/">./ludo/Achex/demos/playground/</a></li>
-        <li><a href="./ludo/Achex/demos/chat-room/">./ludo/Achex/demos/chat-room/</a></li>
+        <li>
+            <a href="./ludo/v1-abs-pos-layout/">Ludo (v1)</a>
+            <span class="desc">- Version 1, using absolute positioning for layout</span>
+        </li>
+        <li>
+            <a href="./lib/Achex/demos/playground/">Achex Playground</a>
+            <span class="desc">- Interactive WebSocket message tester</span>
+        </li>
+        <li>
+            <a href="./lib/Achex/demos/chat-room/">Achex Chat Room</a>
+            <span class="desc">- Multi-user demo chat application</span>
+        </li>
     </ul>
 </body>
 </html>
