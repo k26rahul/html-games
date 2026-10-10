@@ -13,9 +13,7 @@
       <div id="board">
         <!-- 4 BASES -->
         <div v-for="color in colors" :class="['base', color]">
-          <div class="base-inner">
-            <div class="token-stay" v-for="n in 4" :key="n"></div>
-          </div>
+          <div class="base-inner"></div>
         </div>
 
         <!-- 4 GALLERIES -->
@@ -71,6 +69,9 @@
           :key="n"
           :class="['token', `token-${n}`, getColorForToken(n)]"
         ></div>
+
+        <!-- 16 TOKEN-STAYS -->
+        <div v-for="n in 16" :key="n" :class="['token-stay', `token-stay-${n}`]"></div>
       </div>
     </main>
   </body>

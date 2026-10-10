@@ -8,7 +8,16 @@
 
   --token-size: calc(0.8 * var(--cell-size));
   --token-stay-size: calc(1.2 * var(--cell-size));
-  --token-stay-margin: calc(1.5 * var(--cell-size));
+
+  --token-stay-margin-short: calc(1.5 * var(--cell-size));
+  --token-margin-short: calc(
+    (1.5 + 0.2) * var(--cell-size)
+  ); /* 0.2 = (token-stay-size - token-size) / 2 */
+
+  --token-stay-margin-long: calc(
+    3.3 * var(--cell-size)
+  ); /* 3.3 = base-size - token-stay-margin-short - token-stay-size */
+  --token-margin-long: calc((3.3 + 0.2) * var(--cell-size)); /* 0.2 = ... */
 
   --star-size: calc(1.2 * var(--token-size));
   --star-translateY: calc(-0.1 * var(--token-size));
@@ -94,7 +103,7 @@ body,
   width: var(--board-size);
   height: var(--board-size);
   position: relative;
-  outline: 0.5vh solid black;
+  /* outline: 0.5vh solid black; */
 }
 
 .base {
@@ -165,7 +174,7 @@ body,
   display: flex;
   justify-content: center;
   align-items: center;
-  border-radius: 50%;
+  /* border-radius: 50%; */
   border: 0.25vh dashed #e0e0e0;
 }
 
@@ -174,10 +183,50 @@ body,
   height: var(--token-size);
   position: absolute;
   z-index: 1;
-  border-radius: 50%;
+  /* border-radius: 50%; */
   border: 0.1vh solid black;
   box-shadow: 0 0.1vh 0.4vh 0.1vh rgba(0, 0, 0, 0.1);
   background-color: var(--color-darker);
+}
+
+.token-stay-1 {
+  top: var(--token-stay-margin-short);
+  left: var(--token-stay-margin-short);
+}
+
+.token-stay-2 {
+  top: var(--token-stay-margin-short);
+  left: var(--token-stay-margin-long);
+}
+
+.token-stay-3 {
+  top: var(--token-stay-margin-long);
+  left: var(--token-stay-margin-long);
+}
+
+.token-stay-4 {
+  top: var(--token-stay-margin-long);
+  left: var(--token-stay-margin-short);
+}
+
+.token-1 {
+  top: var(--token-margin-short);
+  left: var(--token-margin-short);
+}
+
+.token-2 {
+  top: var(--token-margin-short);
+  left: var(--token-margin-long);
+}
+
+.token-3 {
+  top: var(--token-margin-long);
+  left: var(--token-margin-long);
+}
+
+.token-4 {
+  top: var(--token-margin-long);
+  left: var(--token-margin-short);
 }
 
 /* absolute portioning of board components */
@@ -231,28 +280,6 @@ body,
   }
 }
 
-.token-stay {
-  &:nth-child(1) {
-    top: var(--token-stay-margin);
-    left: var(--token-stay-margin);
-  }
-
-  &:nth-child(2) {
-    top: var(--token-stay-margin);
-    right: var(--token-stay-margin);
-  }
-
-  &:nth-child(3) {
-    bottom: var(--token-stay-margin);
-    right: var(--token-stay-margin);
-  }
-
-  &:nth-child(4) {
-    bottom: var(--token-stay-margin);
-    left: var(--token-stay-margin);
-  }
-}
-
 .star {
   font-size: var(--star-size);
   transform: translateY(var(--star-translateY));
@@ -274,10 +301,3 @@ body,
 .blue .arrow {
   transform: rotateZ(270deg);
 }
-
-/* .token-1 {
-  transform: translate(
-    calc((0 + 0.1) * var(--cell-size)),
-    calc((6 + 0.1) * var(--cell-size))
-  );
-} */
