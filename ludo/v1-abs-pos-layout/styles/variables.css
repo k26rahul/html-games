@@ -1,0 +1,85 @@
+:root {
+  --board-size: calc(min(100vw, 100vh) - 6vh);
+  --cell-size: calc(var(--board-size) / 15);
+}
+
+:root {
+  --base-size: calc(var(--cell-size) * 6);
+  --base-inner-size: calc(var(--cell-size) * 5);
+  --home-size: calc(var(--cell-size) * 3);
+}
+
+:root {
+  --token-size: calc(0.8 * var(--cell-size));
+  --token-base-size: calc(1.2 * var(--cell-size));
+
+  --token-base-margin-short: calc(1.5 * var(--cell-size));
+  --token-margin-short: calc(
+    (1.5 + 0.2) * var(--cell-size)
+  ); /* 0.2 = (token-base-size - token-size) / 2 */
+
+  --token-base-margin-long: calc(
+    3.3 * var(--cell-size)
+  ); /* 3.3 = base-size - token-base-margin-short - token-base-size */
+  --token-margin-long: calc((3.3 + 0.2) * var(--cell-size)); /* 0.2 = ... */
+}
+
+:root {
+  --star-size: calc(1.2 * var(--token-size));
+  --star-translateY: calc(-0.1 * var(--token-size));
+  --arrow-size: calc(0.8 * var(--token-size));
+}
+
+:root {
+  --color-red: rgb(204, 0, 0);
+  --color-red-darker: rgb(230, 33, 28);
+  --grad-red: linear-gradient(135deg, var(--color-red) 0%, var(--color-red-darker) 100%);
+
+  --color-green: rgb(112, 216, 74);
+  --color-green-darker: rgb(59, 181, 74);
+  --grad-green: linear-gradient(
+    225deg,
+    var(--color-green) 0%,
+    var(--color-green-darker) 100%
+  );
+
+  --color-yellow: rgb(251, 192, 11);
+  --color-yellow-darker: rgb(216, 144, 0);
+  --grad-yellow: linear-gradient(
+    315deg,
+    var(--color-yellow) 0%,
+    var(--color-yellow-darker) 100%
+  );
+
+  --color-blue: rgb(0, 156, 208);
+  --color-blue-darker: rgb(0, 90, 144);
+  --grad-blue: linear-gradient(
+    45deg,
+    var(--color-blue) 0%,
+    var(--color-blue-darker) 100%
+  );
+}
+
+.red {
+  --color-normal: var(--color-red);
+  --color-darker: var(--color-red-darker);
+  --grad: var(--grad-red);
+}
+
+.green {
+  --color-normal: var(--color-green);
+  --color-darker: var(--color-green-darker);
+  --grad: var(--grad-green);
+}
+
+.yellow {
+  --color-normal: var(--color-yellow);
+  --color-darker: var(--color-yellow-darker);
+  --grad: var(--grad-yellow);
+}
+
+.blue {
+  --color-normal: var(--color-blue);
+  --color-darker: var(--color-blue-darker);
+  --grad: var(--grad-blue);
+}

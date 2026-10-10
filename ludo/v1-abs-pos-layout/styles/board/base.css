@@ -1,0 +1,37 @@
+.base {
+  width: var(--base-size);
+  height: var(--base-size);
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 0.25vh solid black;
+  background-image: var(--grad);
+
+  &.red {
+    top: 0;
+    left: 0;
+  }
+
+  &.green {
+    top: 0;
+    right: 0;
+  }
+
+  &.yellow {
+    bottom: 0;
+    right: 0;
+  }
+
+  &.blue {
+    bottom: 0;
+    left: 0;
+  }
+}
+
+.base-inner {
+  width: var(--base-inner-size);
+  height: var(--base-inner-size);
+  border-radius: 50%;
+  background-color: white;
+}

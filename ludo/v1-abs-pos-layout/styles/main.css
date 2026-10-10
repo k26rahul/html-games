@@ -1,0 +1,7 @@
+@import './variables.css';
+@import './global.css';
+@import './board/base.css';
+@import './board/gallery.css';
+@import './board/home.css';
+@import './board/token-base.css';
+@import './board/token.css';

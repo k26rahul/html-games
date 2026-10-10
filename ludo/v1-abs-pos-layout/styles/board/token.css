@@ -1,0 +1,90 @@
+.token {
+  width: var(--token-size);
+  height: var(--token-size);
+  position: absolute;
+  z-index: 1;
+  border-radius: 50%;
+  border: 0.1vh solid black;
+  box-shadow: 0 0.1vh 0.4vh 0.1vh rgba(0, 0, 0, 0.1);
+  background-color: var(--color-darker);
+}
+
+.token-1 {
+  top: var(--token-margin-short);
+  left: var(--token-margin-short);
+}
+
+.token-2 {
+  top: var(--token-margin-short);
+  left: var(--token-margin-long);
+}
+
+.token-3 {
+  top: var(--token-margin-long);
+  left: var(--token-margin-long);
+}
+
+.token-4 {
+  top: var(--token-margin-long);
+  left: var(--token-margin-short);
+}
+
+.token-5 {
+  top: var(--token-margin-short);
+  right: var(--token-margin-long);
+}
+
+.token-6 {
+  top: var(--token-margin-short);
+  right: var(--token-margin-short);
+}
+
+.token-7 {
+  top: var(--token-margin-long);
+  right: var(--token-margin-short);
+}
+
+.token-8 {
+  top: var(--token-margin-long);
+  right: var(--token-margin-long);
+}
+
+.token-9 {
+  bottom: var(--token-margin-long);
+  right: var(--token-margin-long);
+}
+
+.token-10 {
+  bottom: var(--token-margin-long);
+  right: var(--token-margin-short);
+}
+
+.token-11 {
+  bottom: var(--token-margin-short);
+  right: var(--token-margin-short);
+}
+
+.token-12 {
+  bottom: var(--token-margin-short);
+  right: var(--token-margin-long);
+}
+
+.token-13 {
+  bottom: var(--token-margin-long);
+  left: var(--token-margin-short);
+}
+
+.token-14 {
+  bottom: var(--token-margin-long);
+  left: var(--token-margin-long);
+}
+
+.token-15 {
+  bottom: var(--token-margin-short);
+  left: var(--token-margin-long);
+}
+
+.token-16 {
+  bottom: var(--token-margin-short);
+  left: var(--token-margin-short);
+}

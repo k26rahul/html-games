@@ -1,0 +1,14 @@
+.home {
+  width: var(--home-size);
+  height: var(--home-size);
+  border: 0.1vh solid black;
+  position: absolute;
+  top: var(--base-size);
+  left: var(--base-size);
+}
+
+.center-triangle-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
